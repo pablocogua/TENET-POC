@@ -64,6 +64,7 @@ export default function StockContainer(props) {
 
     }, []);
 
+
     return (
         <div className='stock-info-container'>
             <Stock price={price} currency={"USD"} changeAmount={changeAmount} changePercentage={changePercentage} />
