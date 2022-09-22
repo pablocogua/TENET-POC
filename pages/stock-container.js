@@ -9,14 +9,14 @@ const options = {
     }
 };
 
-function formatDate(date) {
-    const updateDate = new Date(date);
+function formatDate() {
+    const updateDate = new Date();
     let year = updateDate.getUTCFullYear();
     let month = updateDate.toLocaleString('default', { month: 'long' });
     let day = updateDate.getUTCDate();
     let hour = updateDate.getHours();
     let minutes = updateDate.getMinutes();
-
+    console.log(`${month} ${day}, ${year} ${hour}:${minutes}`);
     return `${month} ${day}, ${year} ${hour}:${minutes}`;
 }
 
@@ -34,26 +34,20 @@ export default function StockContainer(props) {
     const [changeAmountCAD, setChangeAmountCAD] = useState(0);
     const [changePercentageCAD, setchangePercentageCAD] = useState(0);
 
-    const ticker = props.currency === "USD" ? 'OTC Pink: PKKFF' : 'CSE: PKK';
-
     const fetchData = () => {
+
         //Fetch USD STOCK
-        fetch(`https://twelve-data1.p.rapidapi.com/time_series?symbol=PKKFF&interval=15min&outputsize=30&format=json`, options)
+        fetch('https://twelve-data1.p.rapidapi.com/quote?symbol=PKKFF&interval=1day&outputsize=30&format=json', options)
             .then(response => response.json())
             .then((response) => {
-                setPrice(Number(response.values[0].close).toFixed(2));
-                setLastPrice(Number(response.values[1].close));
-                let changeStockAmount = (price - lastPrice).toFixed(2);
-                setChangeAmount(() => {
-                    if (price - lastPrice === 0) return '0';
-                    return changeStockAmount;
+                setPrice(Number(response.close).toFixed(2));
+                setChangeAmount(Number(response.change).toFixed(2));
+                setchangePercentage(Number(response.percent_change).toFixed(2));
+                setDate(() => {
+                    props.updatedDate(formatDate());
+                    return formatDate();
                 });
-                setchangePercentage(() => {
-                    if (price - lastPrice === 0) return '0';
-                    return (((changeStockAmount * 100) / lastPrice).toFixed(2));
-                });
-                setDate(formatDate(response.values[0].datetime));
-                props.updatedDate(date);
+
             })
             .catch(err => console.error(err));
 
@@ -66,11 +60,14 @@ export default function StockContainer(props) {
                 setchangePercentageCAD(Number(response.ticker["Net Change Percentage"]).toFixed(2));
             })
             .catch(err => console.error(err));
+
     };
 
     useEffect(() => {
+
         fetchData();
-        ref.current = setInterval(() => fetchData(), 15 * 60 * 1000);
+
+        ref.current = setInterval(() => fetchData(), 10 * 60 * 1000);
 
         return () => {
             if (ref.current) {

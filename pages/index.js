@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 export default function Home() {
   const [date, setDate] = useState('');
   const updatedDate = (date) => {
-    setDate(date);
+    setDate(() => { return date; });
   };
 
   return (
