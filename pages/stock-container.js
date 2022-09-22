@@ -1,5 +1,5 @@
+import Stock from './stock';
 import React, { useState, useEffect } from 'react';
-import Stock from './stock'
 
 const options = {
     method: 'GET',
@@ -27,6 +27,11 @@ export default function StockContainer(props) {
     const [changeAmount, setChangeAmount] = useState(0);
     const [changePercentage, setchangePercentage] = useState(0);
     const [date, setDate] = useState('');
+
+    const [priceCAD, setPriceCAD] = useState(0);
+    const [changeAmountCAD, setChangeAmountCAD] = useState(0);
+    const [changePercentageCAD, setchangePercentageCAD] = useState(0);
+
     const ticker = props.currency === "USD" ? 'OTC Pink: PKKFF' : 'CSE: PKK';
 
     useEffect(() => {
@@ -36,7 +41,7 @@ export default function StockContainer(props) {
             .then((response) => {
                 console.log(response);
                 setPrice(Number(response.values[0].close).toFixed(2));
-                setLastPrice(Number(response.values[1].close).toFixed(2));
+                setLastPrice(Number(response.values[1].close));
                 let changeStockAmount = (price - lastPrice).toFixed(2);
                 setChangeAmount(changeStockAmount);
                 setchangePercentage(() => {
@@ -49,7 +54,12 @@ export default function StockContainer(props) {
         //Fetch CAD   
         fetch('https://webapi.thecse.com/trading/listed/securities/PKK.json')
             .then(response => response.json())
-            .then((response) => { console.log(response) })
+            .then((response) => {
+                console.log(response.ticker);
+                setPriceCAD(response.ticker["Last Price"]);
+                setChangeAmountCAD(response.ticker["Net Change"] !== null ? response.ticker["Net Change"] : 0.00);
+                setchangePercentageCAD(response.ticker["Net Change Percentage"]);
+            })
             .catch(err => console.error(err));
 
     }, []);
@@ -61,7 +71,7 @@ export default function StockContainer(props) {
                 <Stock price={price} currency={"USD"} changeAmount={changeAmount} changePercentage={changePercentage} />
                 <div className='vertical-line'></div>
                 <div className='horizontal-line'></div>
-                <Stock price={(price*1.35).toFixed(2)} currency={"CAD"} changeAmount={((price-lastPrice)*1.35).toFixed(2)} changePercentage={((((price-lastPrice)*1.35).toFixed(2) * 100) / (lastPrice*1.35)).toFixed(2)} />
+                <Stock price={priceCAD} currency={"CAD"} changeAmount={changeAmountCAD} changePercentage={changePercentageCAD} />
             </div>
             <div className='_4col'>
                 <div className='stock-delay-info-container _17pt-light-spacing'>
