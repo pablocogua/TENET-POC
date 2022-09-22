@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Stock from './stock'
 
 const options = {
     method: 'GET',
@@ -35,7 +36,7 @@ export default function StockContainer(props) {
             .then((response) => {
                 console.log(response);
                 setPrice(Number(response.values[0].close).toFixed(2));
-                setLastPrice(Number(response.values[1].close));
+                setLastPrice(Number(response.values[1].close).toFixed(2));
                 let changeStockAmount = (price - lastPrice).toFixed(2);
                 setChangeAmount(changeStockAmount);
                 setchangePercentage(() => {
@@ -53,13 +54,14 @@ export default function StockContainer(props) {
 
     }, []);
 
+
     return (
         <div>
             <div className='stock-info-container'>
                 <Stock price={price} currency={"USD"} changeAmount={changeAmount} changePercentage={changePercentage} />
                 <div className='vertical-line'></div>
                 <div className='horizontal-line'></div>
-                <Stock price={price} currency={"CAD"} changeAmount={changeAmount} changePercentage={changePercentage} />
+                <Stock price={(price*1.35).toFixed(2)} currency={"CAD"} changeAmount={((price-lastPrice)*1.35).toFixed(2)} changePercentage={((((price-lastPrice)*1.35).toFixed(2) * 100) / (lastPrice*1.35)).toFixed(2)} />
             </div>
             <div className='_4col'>
                 <div className='stock-delay-info-container _17pt-light-spacing'>
