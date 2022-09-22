@@ -1,6 +1,5 @@
 import StockContainer from './stock-container';
 import React, { useState, useEffect } from 'react';
-import StockContainer from './stock-container';
 
 export default function Home() {
   return (
