@@ -1,5 +1,5 @@
 import Stock from './stock';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const options = {
     method: 'GET',
@@ -22,6 +22,8 @@ function formatDate(date) {
 
 
 export default function StockContainer(props) {
+
+    const ref = useRef(null)
     const [price, setPrice] = useState(0);
     const [lastPrice, setLastPrice] = useState(0);
     const [changeAmount, setChangeAmount] = useState(0);
@@ -34,17 +36,20 @@ export default function StockContainer(props) {
 
     const ticker = props.currency === "USD" ? 'OTC Pink: PKKFF' : 'CSE: PKK';
 
-    useEffect(() => {
+    const fetchData = () => {
         //Fetch USD STOCK
         fetch(`https://twelve-data1.p.rapidapi.com/time_series?symbol=PKKFF&interval=15min&outputsize=30&format=json`, options)
             .then(response => response.json())
             .then((response) => {
-                console.log(response);
                 setPrice(Number(response.values[0].close).toFixed(2));
                 setLastPrice(Number(response.values[1].close));
                 let changeStockAmount = (price - lastPrice).toFixed(2);
-                setChangeAmount(changeStockAmount);
+                setChangeAmount(() => {
+                    if (price - lastPrice === 0) return '0';
+                    return changeStockAmount;
+                });
                 setchangePercentage(() => {
+                    if (price - lastPrice === 0) return '0';
                     return (((changeStockAmount * 100) / lastPrice).toFixed(2));
                 });
                 setDate(formatDate(response.values[0].datetime));
@@ -61,6 +66,17 @@ export default function StockContainer(props) {
                 setchangePercentageCAD(Number(response.ticker["Net Change Percentage"]).toFixed(2));
             })
             .catch(err => console.error(err));
+    };
+
+    useEffect(() => {
+        fetchData();
+        ref.current = setInterval(() => fetchData(), 15 * 60 * 1000);
+
+        return () => {
+            if (ref.current) {
+                clearInterval(ref.current)
+            }
+        }
 
     }, []);
 
