@@ -36,51 +36,40 @@ export default function StockContainer(props) {
 
     useEffect(() => {
         //Fetch USD STOCK
-        // fetch(`https://twelve-data1.p.rapidapi.com/time_series?symbol=PKKFF&interval=15min&outputsize=30&format=json`, options)
-        //     .then(response => response.json())
-        //     .then((response) => {
-        //         console.log(response);
-        //         setPrice(Number(response.values[0].close).toFixed(2));
-        //         setLastPrice(Number(response.values[1].close));
-        //         let changeStockAmount = (price - lastPrice).toFixed(2);
-        //         setChangeAmount(changeStockAmount);
-        //         setchangePercentage(() => {
-        //             return (((changeStockAmount * 100) / lastPrice).toFixed(2));
-        //         });
-        //         setDate(formatDate(response.values[0].datetime));
-        //     })
-        //     .catch(err => console.error(err));
+        fetch(`https://twelve-data1.p.rapidapi.com/time_series?symbol=PKKFF&interval=15min&outputsize=30&format=json`, options)
+            .then(response => response.json())
+            .then((response) => {
+                console.log(response);
+                setPrice(Number(response.values[0].close).toFixed(2));
+                setLastPrice(Number(response.values[1].close));
+                let changeStockAmount = (price - lastPrice).toFixed(2);
+                setChangeAmount(changeStockAmount);
+                setchangePercentage(() => {
+                    return (((changeStockAmount * 100) / lastPrice).toFixed(2));
+                });
+                setDate(formatDate(response.values[0].datetime));
+                props.updatedDate(date);
+            })
+            .catch(err => console.error(err));
 
         //Fetch CAD   
         fetch('https://webapi.thecse.com/trading/listed/securities/PKK.json')
             .then(response => response.json())
             .then((response) => {
-                console.log(response.ticker);
                 setPriceCAD(response.ticker["Last Price"]);
                 setChangeAmountCAD(response.ticker["Net Change"]);
-                setchangePercentageCAD(response.ticker["Net Change Percentage"]);
+                setchangePercentageCAD(Number(response.ticker["Net Change Percentage"]).toFixed(2));
             })
             .catch(err => console.error(err));
 
     }, []);
 
     return (
-        <div>
-            <div className='stock-info-container'>
-                <Stock price={price} currency={"USD"} changeAmount={changeAmount} changePercentage={changePercentage} />
-                <div className='vertical-line'></div>
-                <div className='horizontal-line'></div>
-                <Stock price={priceCAD} currency={"CAD"} changeAmount={changeAmountCAD} changePercentage={changePercentageCAD} />
-            </div>
-            <div className='_4col'>
-                <div className='stock-delay-info-container _17pt-light-spacing'>
-                    <div className='inline-text'>Price delayed by </div>
-                    <div className='updated-time'>15 minutes.&nbsp;</div>
-                    <div className='inline-text'>Last updated </div>
-                    <div className='inline-text'>{date}</div>
-                </div>
-                <p className='stock-comment _17pt-light-spacing'>The stock information provided is for informational purposes only and is not intended for trading purposes.</p>
-            </div>
+        <div className='stock-info-container'>
+            <Stock price={price} currency={"USD"} changeAmount={changeAmount} changePercentage={changePercentage} />
+            <div className='vertical-line'></div>
+            <div className='horizontal-line'></div>
+            <Stock price={priceCAD} currency={"CAD"} changeAmount={changeAmountCAD} changePercentage={changePercentageCAD} />
         </div>
     );
 
