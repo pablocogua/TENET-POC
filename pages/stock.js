@@ -15,7 +15,7 @@ export default function Stock(props) {
             </div>
             <div className='stock-change _17pt-menu-top'>
                 <div className='stock-price-change'>
-                    <div>{props.changeAmount}</div>
+                    <div>{props.currency === "USD" ? props.changeAmount : ""}</div>
                 </div>
                 <div className='stock-percentage-change'>
                     <div className='inline-text'>{props.changePercentage}</div>

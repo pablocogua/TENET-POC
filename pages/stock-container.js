@@ -15,9 +15,10 @@ function formatDate() {
     let month = updateDate.toLocaleString('default', { month: 'long' });
     let day = updateDate.getUTCDate();
     let hour = updateDate.getHours();
+    let ampm = hour >= 12 ? 'pm' : 'am'
     let minutes = updateDate.getMinutes();
     console.log(`${month} ${day}, ${year} ${hour}:${minutes}`);
-    return `${month} ${day}, ${year} ${hour}:${minutes}`;
+    return `${month} ${day}, ${year} ${hour}:${minutes.toString().length == 1 ? '0'+minutes : minutes} ${ampm}`;
 }
 
 

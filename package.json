@@ -1,7 +1,6 @@
 {
   "name": "tenet-poc",
   "version": "0.1.0",
-  "main":"function.js",
   "private": true,
   "scripts": {
     "dev": "next dev",
